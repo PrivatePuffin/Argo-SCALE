@@ -5,7 +5,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        repoURL: https://github.com/truecharts/Argo-SCALE.git
         revision: HEAD
         files:
           - path: "cluster-critical/**/gen-config.json"
@@ -19,7 +19,7 @@ spec:
       source:
         path: '{{ path }}'
         targetRevision: HEAD
-        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        repoURL: https://github.com/truecharts/Argo-SCALE.git
         helm:
           valueFiles:
             - values.yaml
@@ -32,6 +32,7 @@ spec:
         syncOptions:
           - ApplyOutOfSyncOnly=true
           - PrunePropagationPolicy=orphan
+          - CreateNamespace=true
       ignoreDifferences:
         - group: ""
           kind: Secret

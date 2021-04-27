@@ -1,9 +1,0 @@
-[
-  {
-    "name": "bookstack",
-    "cluster": "do",
-    "namespace": "cajun-pro",
-    "path": "cluster-apps/bookstack",
-    "valueFile": ""
-  }
-]

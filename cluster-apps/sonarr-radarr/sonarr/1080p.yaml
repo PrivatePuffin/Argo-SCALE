@@ -1,5 +1,0 @@
-arr:
-  fullnameOverride: sonarr-1080p
-
-  env:
-    APP_NAME: "sonarr-1080p"

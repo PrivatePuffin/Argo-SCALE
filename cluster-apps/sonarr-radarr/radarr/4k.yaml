@@ -1,4 +1,0 @@
-arr:
-  fullnameOverride: radarr-4k
-  env:
-    APP_NAME: "radarr-4k"

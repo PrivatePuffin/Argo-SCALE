@@ -1,5 +1,0 @@
-metrics-server:
-  hostNetwork: true
-
-  nodeSelector:
-    cajun.pro/cluster-gen: "2"

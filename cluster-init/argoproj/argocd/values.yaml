@@ -1,3 +1,10 @@
+storage:
+  zfs:
+    enabled: true
+    pool: tank
+    dataset: argo/pv
+
+
 argo-cd:
   fullnameOverride: argocd
   installCRDs: false
@@ -14,9 +21,7 @@ argo-cd:
       - --repo-server-timeout-seconds
       - "500"
     metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: true
+      enabled: false
       rules:
         enabled: false
         spec:
@@ -44,7 +49,6 @@ argo-cd:
                 The application [{{`{{$labels.name}}`}} has not been synchronized for over
                 12 hours which means that the state of this cloud has drifted away from the
                 state inside Git.
-
     resources:
       requests:
         cpu: 500m
@@ -58,36 +62,23 @@ argo-cd:
     extraArgs:
       - --insecure
     config:
-      admin.enabled: "false"
-      url: https://argo.staging.schouten-lebbing.nl
+      admin.enabled: "true"
+      url: https://argo.example.domain.org
       application.instanceLabelKey: argocd.argoproj.io/instance
-      statusbadge.enabled: "true"
-        Service:
-          health.lua: |
-            hs = {}
-            hs.status = "Healthy"
-            return hs
-        networking.k8s.io/Ingress:
-          health.lua: |
-            hs = {}
-            hs.status = "Healthy"
-            return hs
     ingress:
       enabled: true
-      ingressClassName: traefik
+      #ingressClassName: traefik
       annotations:
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
         traefik.ingress.kubernetes.io/router.priority: "10"
-        cert-manager.io/cluster-issuer: le-production
+        #cert-manager.io/cluster-issuer: le-production
       hosts:
-        - argo.staging.schouten-lebbing.nl
+        - argo.example.domain.org
       tls:
         - secretName: ""
-          hosts: [argo.staging.schouten-lebbing.nl]
+          hosts: [argo.example.domain.org]
     metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: true
+      enabled: false
     resources:
       requests:
         cpu: 100m
@@ -113,9 +104,7 @@ argo-cd:
         cpu: 100m
         memory: 100Mi
     metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: true
+      enabled: false
     env:
       - name: "ARGOCD_EXEC_TIMEOUT"
         value: "5m"

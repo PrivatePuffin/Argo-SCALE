@@ -1,7 +1,0 @@
-name: authentik
-apiVersion: v2
-version: 1.0.0
-dependencies:
-  - name: authentik
-    version: 2021.4.4
-    repository: https://docker.beryju.org/chartrepo/authentik

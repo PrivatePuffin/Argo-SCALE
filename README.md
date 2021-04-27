@@ -1,21 +1,24 @@
 # GitOps Argo CD
-This repo is the current state of the application layer of my clusters. It is powered by various [Argo Projects][argo].
+This Repo is a showcase/template on how to setup ArgoCD on TrueNAS SCALE
 
-> WIP: Each folder will have information specific to the folder
+## Getting started
 
-## Structure
-### [cluster-init][argoproj]
-Applications responsible for automating the installation, maintenance, and removal of all other applications.
+Installing a basic setup of ArgoCD on SCALE is rather easy!
 
-### [cluster-critical][critical]
-Applications that integrate at a level critical to the cluster as a whole. Installed prior to general application
-installation.
+- Adapt the default config to your liking:
 
-### [cluster-apps][apps]
-All general applications.
+Be sure that all references to github repo's, domainname, dataset and pool are set correctly.
+Our bootstrap script will also create our a seperate storageClass called `argo-storage-class-zfs` for argo-apps to prevent interferance from SCALE App storage.
 
+- Run `bash ./bootstrap.sh`
 
-[argo]: https://argoproj.github.io/
-[argoproj]: /cluster-init/argoproj
-[apps]: /cluster-apps
-[critical]: /cluster-critical
+*This should create:*
+
+- an ArgoCD instance with a random admin password (displayed after running the script)
+- A traefik instance
+- ArgoCD ingress with a self-signed certificate at the domain specified by your
+- Traefik ingress with a self-signed certificate at the domain specified by your
+
+With this out of the way, you should be able to use the ArgoCD webinterface and CLI from another PC on the network.
+
+As long as you consume the storageClass called `argo-storage-class-zfs` and don't use namespaces which start with "ix", there shouldn't be any interferance with SCALE Apps.
