@@ -1,0 +1,120 @@
+kps:
+  alertmanager:
+    ingress:
+      enabled: true
+      pathType: Prefix
+      ingressClassName: traefik
+      paths:
+        - /
+      hosts:
+        - alertmanager.cajun.pro
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: ingress-google-auth-home@kubernetescrd
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.priority: "10"
+        cert-manager.io/cluster-issuer: le-production
+      tls:
+        - secretName: alertmanager-cajun-pro
+          hosts:
+            - alertmanager.cajun.pro
+
+  kubeScheduler:
+    service:
+      port: 10259
+      targetPort: 10259
+    serviceMonitor:
+      https: true
+      insecureSkipVerify: true
+  kubeControllerManager:
+    service:
+      port: 10257
+      targetPort: 10257
+    serviceMonitor:
+      https: true
+      insecureSkipVerify: true
+  kubeEtcd:
+    service:
+      port: 2381
+      targetPort: 2381
+  prometheusOperator:
+    admissionWebhooks:
+      failurePolicy: Ignore
+  prometheus:
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+    ingress:
+      enabled: true
+      pathType: Prefix
+      ingressClassName: traefik
+      hosts:
+        - prometheus.cajun.pro
+      paths:
+        - /
+      tls:
+        - hosts: [prometheus.cajun.pro]
+          secretName: prometheus-cajun-pro
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: ingress-google-auth-home@kubernetescrd
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.priority: "10"
+        cert-manager.io/cluster-issuer: le-production
+    prometheusSpec:
+      ruleSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+  prometheus-node-exporter:
+    securityContext:
+      runAsUser: 0
+      runAsNonRoot: false
+  grafana:
+    enabled: true
+    image:
+      repository: grafana/grafana
+      tag: 7.5.3
+      pullPolicy: IfNotPresent
+    testFramework:
+      enabled: false
+    serviceMonitor:
+      enabled: true
+    ingress:
+      enabled: true
+      pathType: Prefix
+      ingressClassName: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.priority: "10"
+        cert-manager.io/cluster-issuer: le-production
+      hosts:
+        - grafana.cajun.pro
+      tls:
+        - hosts:
+            - grafana.cajun.pro
+          secretName: grafana-cajun-pro
+    persistence:
+      enabled: false
+      storageClassName: rook-ceph-fs
+      accessModes:
+        - ReadWriteOnce
+    plugins:
+      - grafana-piechart-panel
+    grafana.ini:
+      server:
+        root_url: https://grafana.cajun.pro
+      auth.google:
+        enabled: true
+        scopes: https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email
+        auth_url: https://accounts.google.com/o/oauth2/auth
+        token_url: https://accounts.google.com/o/oauth2/token
+        allowed_domains: cajun.pro
+    envValueFrom:
+      GF_AUTH_GOOGLE_CLIENT_ID:
+        secretKeyRef:
+          key: google_oauth_client_id
+          name: grafana-oauth
+      GF_AUTH_GOOGLE_CLIENT_SECRET:
+        secretKeyRef:
+          key: google_oauth_client_secret
+          name: grafana-oauth
+
+

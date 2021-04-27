@@ -1,0 +1,19 @@
+k10:
+  ingress:
+    create: false
+    host: k10.cajun.pro
+
+  global:
+    persistence:
+      storageClass: rook-ceph-block
+
+  prometheus:
+    enabled: true
+    server:
+      persistantVolume:
+        enabled: false
+
+  clusterName: home
+
+  nodeSelector:
+    cajun.pro/cluster-gen: "2"

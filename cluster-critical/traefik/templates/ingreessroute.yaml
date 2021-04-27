@@ -1,0 +1,54 @@
+{{- if .Values.traefik.deployment.enabled -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Values.traefik.fullnameOverride }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ include "traefik.hostname" . }}`)
+      middlewares:
+        {{- $mw := index .Values "traefik-forward-auth" "middleware" "name" }}
+        {{- if eq .Values.cluster "home" }}
+          {{- $mw = printf "%s-home" $mw }}
+        {{- end }}
+        - name: {{ $mw }}
+      priority: 10
+      services:
+        - kind: TraefikService
+          name: api@internal
+  tls:
+    secretName: {{ include "traefik.secretname" . }}
+{{- end }}
+{{- if and .Values.traefik.deployment.enabled (eq .Values.cluster "do") }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-do-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`do.traefik.cajun.pro`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      priority: 10
+      services:
+        - kind: TraefikService
+          name: api@internal
+    - kind: Rule
+      match: Host(`do.traefik.cajun.pro`) && PathPrefix(`/akprox/callback`)
+      priority: 15
+      services:
+        - kind: Service
+          name: authentik-outpost-a2118407e48843738a9eb8f25c4915a3
+          namespace: authentik
+          port: 4180
+  tls:
+    secretName: do-traefik-cajun-pro
+{{- end -}}

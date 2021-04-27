@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-critical
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        revision: HEAD
+        files:
+          - path: "cluster-critical/**/gen-config.json"
+  template:
+    metadata:
+      name: '{{ name }}'
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: '/{{ path }}'
+    spec:
+      project: cluster-critical
+      source:
+        path: '{{ path }}'
+        targetRevision: HEAD
+        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        helm:
+          valueFiles:
+            - values.yaml
+            - '{{ valueFile }}'
+      destination:
+        namespace: '{{ namespace }}'
+        name: '{{ cluster }}'
+      syncPolicy:
+        #  automated: {}
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+          - PrunePropagationPolicy=orphan
+      ignoreDifferences:
+        - group: ""
+          kind: Secret
+          name: kopia-tls-cert
+          jsonPointers:
+            - /data
+        - group: ""
+          kind: Secret
+          name: kopia-tls-key
+          jsonPointers:
+            - /data

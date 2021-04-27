@@ -1,0 +1,6 @@
+rook-ceph:
+  csi:
+    pluginTolerations:
+      - key: role
+        value: storage
+        effect: NoSchedule

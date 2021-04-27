@@ -1,0 +1,94 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+spec:
+  cephVersion:
+    # allowUnsupported: false
+    image: ceph/ceph:v16.2.1-20210419
+
+  dataDirHostPath: /var/lib/rook
+
+  waitTimeoutForHealthyOSDInMinutes: 10
+
+  dashboard:
+    enabled: true
+    port: 7000
+    # ssl: false
+  disruptionManagement:
+    machineDisruptionBudgetNamespace: openshift-machine-api
+    # manageMachineDisruptionBudgets: false
+    # managePodBudgets: false
+    osdMaintenanceTimeout: 30
+    # pgHealthCheckTimeout: 0
+
+  healthCheck:
+    daemonHealth:
+      mon:
+        # disabled: false
+        interval: 45s
+      osd:
+        # disabled: false
+        interval: 1m0s
+      status:
+        # disabled: false
+        interval: 1m0s
+    livenessProbe:
+      mon: {}
+        # disabled: false
+      mgr: {}
+        # disabled: false
+      osd: {}
+        # disabled: false
+
+  mon:
+    count: 3
+    # allowMultiplePerNode: false
+
+  mgr:
+    modules:
+      - name: pg_autoscaler
+        enabled: true
+
+  monitoring:
+    enabled: true
+    rulesNamespace: rook-ceph
+
+  removeOSDsIfOutAndSafeToRemove: true
+  network: {}
+  cleanupPolicy:
+    # allowUninstallWithVolumes: false
+    # confirmation: ""
+    sanitizeDisks:
+      method: quick
+      dataSource: zero
+      iteration: 1
+  # continueUpgradeAfterChecksEvenIfNotHealthy: false
+  # skipUpgradeChecks: false
+  resources:
+    mon:
+      requests:
+        cpu: 35m
+        memory: 800Mi
+      limits:
+        memory: 1536Mi
+    osd:
+      requests:
+        cpu: 35m
+        memory: 2Gi
+      limits:
+        memory: 4Gi
+  storage:
+    deviceFilter: "sdb"
+    config:
+      metadataDevice:
+      osdsPerDevice: "1"
+    nodes:
+      - name: "node5.k8s.cajun.pro"
+      - name: "node6.k8s.cajun.pro"
+      - name: "node7.k8s.cajun.pro"
+    useAllDevices: false
+    # useAllNodes: false

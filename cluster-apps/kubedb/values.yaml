@@ -1,0 +1,26 @@
+global:
+  skipCleaner: true
+kubedb:
+  kubedb-community:
+    fullnameOverride: kubedb
+    enableAnalytics: false
+    monitoring:
+      enabled: true
+      agent: "prometheus.io/operator"
+
+# todo:
+# ignoreDifferences:
+#   - group: apiregistration.k8s.io
+#     kind: APIService
+#     jsonPointers:
+#       - /spec/caBundle
+#       - /metadata
+#   - kind: Secret
+#     name: kubedb-apiserver-cert
+#     jsonPointers:
+#       - /data
+#       - /metadata
+#   - group: apps
+#     kind: Deployment
+#     jsonPointers:
+#       - /metadata/annotations

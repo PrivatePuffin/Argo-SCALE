@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-apps
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        revision: HEAD
+        files:
+          - path: "cluster-apps/**/gen-config.json"
+    - git:
+        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        revision: HEAD
+        files:
+          - path: "cluster-apps/**/gen-config2.json"
+        template:
+          metadata: {}
+          spec:
+            destination: {}
+            project: cluster-apps
+            source:
+              repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+              helm:
+                valueFiles:
+                  - '../values.yaml'
+                  - 'values.yaml'
+                  - '{{ valueFile }}'
+  template:
+    metadata:
+      name: '{{ name }}'
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: '/{{ path }}'
+    spec:
+      project: cluster-apps
+      source:
+        path: '{{ path }}'
+        targetRevision: HEAD
+        repoURL: https://github.com/DirtyCajunRice/GitOps-Argo-CD.git
+        helm:
+          valueFiles:
+            - values.yaml
+            - '{{ valueFile }}'
+      destination:
+        namespace: '{{ namespace }}'
+        name: '{{ cluster }}'
+      syncPolicy:
+        #  automated: {}
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+          - PrunePropagationPolicy=orphan
+      ignoreDifferences:
+        - group: ""
+          kind: Secret
+          name: kubedb-apiserver-cert
+          jsonPointers:
+            - /data
+        - group: apps
+          kind: Deployment
+          name: kubedb
+          namespace: databases
+          jsonPointers:
+            - /metadata

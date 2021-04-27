@@ -1,0 +1,14 @@
+[
+  {
+    "app": "goland",
+    "suffix": ""
+  },
+  {
+    "app": "pycharm",
+    "suffix": "-p"
+  },
+  {
+    "app": "webstorm",
+    "suffix": ""
+  }
+]
